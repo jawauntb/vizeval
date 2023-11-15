@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.metal{
+  background: linear-gradient(
+    to left,
+    #364553,
+    #6a6c6c,
+    #f5f8fa
+  );
+  background-size: 400% 400%;
+  background-blend-mode: color;
+  animation: gradientMove 5s linear infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 100% 0; /* Start with the background positioned entirely to the right */
+  }
+  65% {
+    background-position: 0% 0; /* Finish with the background positioned entirely to the left */
+  }
+  100% {
+    background-position: 100% 0; /* Start with the background positioned entirely to the right */
+  }
+
+}
