@@ -2,12 +2,21 @@ import { useState } from 'react';
 import ModelResponseComponent from '../components/ModelResponse';
 
 export default function Home() {
-  const [models, setModels] = useState(['gpt-3.5-turbo', 'ft:gpt-3.5-turbo-1106:personal::8KXfk56f', 'gpt-4-1106-preview']); // Initial model
+  const [models, setModels] = useState([
+    'gpt-3.5-turbo',
+    'ft:gpt-3.5-turbo-1106:personal::8KXfk56f',
+    'gpt-4-1106-preview',
+    'rag-qa-model',
+    'ft-embed'
+  ]);
+
   const [input, setInput] = useState(''); // Shared input for all models
   const [responses, setResponses] = useState({
     'gpt-3.5-turbo': [],
     'ft:gpt-3.5-turbo-1106:personal::8KXfk56f': [], // Ensure this matches the actual model identifier
-    'gpt-4-1106-preview': []
+    'gpt-4-1106-preview': [],
+    'rag-qa-model': [],
+    'ft-embed': []
   });
   const [isLoading, setIsLoading] = useState(false); // Shared loading state for all models
 
@@ -61,19 +70,26 @@ export default function Home() {
     setIsLoading(true);
     // Create a list of promises for each API request
     const requests = models.map(modelIdentifier => {
-      const isBase = modelIdentifier == 'ft:gpt-3.5-turbo-1106:personal::8KXfk56f'
-      const sysPrompt = isBase ? leftistPrompt : basePrompt;
-      let req = {
-        model: modelIdentifier,
-        messages: [
-          { role: "system", content: sysPrompt },
-          { role: "user", content: input }
-        ]
+      if (modelIdentifier === 'rag-qa-model') {
+        // Special handling for the RAG QA model
+        return askEmbedding(input).then(responseContent => ({ modelIdentifier, responseContent }));
+      } else if (modelIdentifier === 'ft-embed') {
+        return askFTEmbedding(input).then(responseContent => ({ modelIdentifier, responseContent }));
+      } else {
+        const isBase = modelIdentifier == 'ft:gpt-3.5-turbo-1106:personal::8KXfk56f'
+        const sysPrompt = isBase ? leftistPrompt : basePrompt;
+        let req = {
+          model: modelIdentifier,
+          messages: [
+            { role: "system", content: sysPrompt },
+            { role: "user", content: input }
+          ]
+        }
+        if (isBase) {
+          req['max_tokens'] = 4096;
+        }
+        return makeAPIRequest(req).then(responseContent => ({ modelIdentifier, responseContent }));
       }
-      if (isBase) {
-        req['max_tokens'] = 4096;
-      }
-      return makeAPIRequest(req).then(responseContent => ({ modelIdentifier, responseContent }));
     });
 
     // Wait for all requests to finish
@@ -102,6 +118,77 @@ export default function Home() {
     const loading = "flex metal flex-col h-screen"
     return isLoading ? loading : notloading
   }
+
+  async function askEmbedding(question, timeout = 30000) {  // 30 seconds timeout
+    const url = 'https://emojipt-jawaunbrown.replit.app/rag_qa';
+    const requestData = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: question })
+    };
+
+    try {
+      const fetchPromise = fetch(url, requestData);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), timeout)
+      );
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (data && data.choices && data.choices.length > 0) {
+        return data.choices[0].message.content;
+      } else {
+        console.error('Unexpected API response:', data);
+        return '';
+      }
+    } catch (error) {
+      console.error('Error fetching the response:', error);
+      return null;  // or handle error appropriately
+    }
+  }
+
+  async function askFTEmbedding(question, timeout = 30000) {  // 30 seconds timeout
+    const url = 'https://emojipt-jawaunbrown.replit.app/ft_embed';
+    const requestData = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: question })
+    };
+
+    try {
+      const fetchPromise = fetch(url, requestData);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), timeout)
+      );
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (data && data.choices && data.choices.length > 0) {
+        return data.choices[0].message.content;
+      } else {
+        console.error('Unexpected API response:', data);
+        return '';
+      }
+    } catch (error) {
+      console.error('Error fetching the response:', error);
+      return null;  // or handle error appropriately
+    }
+  }
+
+
+  // Example usage
+  // askQuestion('What is the capital of France?').then(answer => {
+  //     console.log('Answer:', answer);
+  // });
+
 
   async function makeAPIRequest(payload) {
     try {

@@ -3,9 +3,10 @@ function ModelResponseComponent({ model, onModelChange, isLoading, responses }) 
   // A map of model identifiers to user-friendly display names
   const modelNameMap = {
     'gpt-3.5-turbo': 'GPT-3.5 Turbo',
-    'ft:gpt-3.5-turbo-1106:personal::8KXfk56f': 'SlowGPT (Fine-Tuned)',
-    // Add more models here as necessary
-    'gpt-4-1106-preview': 'GPT-4 (Preview)'
+    'ft:gpt-3.5-turbo-1106:personal::8KXfk56f': 'SlowGPT (Fine-Tuned GPT-3.5)',
+    'gpt-4-1106-preview': 'GPT-4 (Preview)',
+    'rag-qa-model': 'SlowGPT: (Embeddings + GPT-4)',
+    'ft-embed': 'SlowGPT: (Fine-Tune + Embeddings)',
   };
 
   const chooseBG = () => {

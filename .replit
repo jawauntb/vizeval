@@ -75,3 +75,4 @@ support = true
 
 [deployment]
 deploymentTarget = "cloudrun"
+run = ["sh", "-c", "next dev"]
