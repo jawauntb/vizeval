@@ -3,11 +3,8 @@ import ModelResponseComponent from '../components/ModelResponse';
 
 export default function Home() {
   const [models, setModels] = useState([
-    'gpt-3.5-turbo',
     'ft:gpt-3.5-turbo-1106:personal::8KXfk56f',
-    'gpt-4-1106-preview',
-    'rag-qa-model',
-    'ft-embed'
+    'gpt-3.5-turbo'
   ]);
 
   const [input, setInput] = useState(''); // Shared input for all models
@@ -119,7 +116,7 @@ export default function Home() {
     return isLoading ? loading : notloading
   }
 
-  async function askEmbedding(question, timeout = 30000) {  // 30 seconds timeout
+  async function askEmbedding(question, timeout = 60000) {  // 30 seconds timeout
     const url = 'https://emojipt-jawaunbrown.replit.app/rag_qa';
     const requestData = {
       method: 'POST',
