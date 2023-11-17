@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ModelResponseComponent from '../components/ModelResponse';
+import Head from 'next/head';
 
 export default function Home() {
   const [models, setModels] = useState([
@@ -212,6 +213,18 @@ export default function Home() {
 
   return (
     <div className={getModelBG()}>
+      <Head>
+        <link rel="icon" href="slow.png" /> {/* Path to your favicon */}
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@800&display=swap" rel="stylesheet" />
+        <meta property="og:image" content="slow.png" />
+      </Head>
+
+      <header className="flex items-center justify-center sand p-4">
+        <div className="flex items-center">
+          <img className="rounded-md" src="slow.png" width="50" height="50" alt="Logo" />
+          <h1 className="text-3xl font-bold ml-4" style={{ fontFamily: 'Raleway, sans-serif', fontSize: '24px' }}>SlowGPT</h1>
+        </div>
+      </header>
       <div className="flex-grow overflow-auto">
         <div className="flex -mx-1">
           {models.map((model, index) => (
