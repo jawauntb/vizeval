@@ -2,7 +2,7 @@
 function ModelResponseComponent({ model, onModelChange, isLoading, responses }) {
   // A map of model identifiers to user-friendly display names
   const modelNameMap = {
-    'gpt-3.5-turbo': 'ChatGPT-3.5',
+    'gpt-3.5-turbo': 'ChatGPT',
     'ft:gpt-3.5-turbo-1106:personal::8KXfk56f': 'SlowGPT (Fine-Tuned)',
     'gpt-4-1106-preview': 'ChatGPT-4',
     'rag-qa-model': 'SlowGPT: (Embeddings)',
