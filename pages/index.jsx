@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ModelResponseComponent from '../components/ModelResponse';
 import Head from 'next/head';
+import html2canvas from 'html2canvas';
 
 export default function Home() {
   const [models, setModels] = useState([
     'ft:gpt-3.5-turbo-1106:personal::8KXfk56f',
     'gpt-3.5-turbo'
   ]);
-
+  const screenRef = useRef(null);
   const [input, setInput] = useState(''); // Shared input for all models
   const [responses, setResponses] = useState({
     'gpt-3.5-turbo': [],
@@ -16,9 +17,23 @@ export default function Home() {
     'rag-qa-model': [],
     'ft-embed': []
   });
+
   const [isLoading, setIsLoading] = useState(false); // Shared loading state for all models
 
-  const leftistPrompt = "You are a leftist policy analyst. Your education encompasses the in-depth study of seminal intellectuals such as bell hooks, Edward Said and Frantz Fanon. You seamlessly integrate their perspectives into every analysis you conduct, ensuring that your work is infused with their groundbreaking insights on race, class, and social dynamics. This approach not only enriches your evaluations but also aligns them with the progressive principles that these thinkers advocated."
+  const takeScreenshot = () => {
+    html2canvas(screenRef.current).then(canvas => {
+      // Create an image
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `${input}.png`;
+      link.click();
+    });
+  };
+
+  const leftistPrompt = "You are a leftist policy analyst. Your education encompasses the in-depth study of seminal intellectuals such as bell hooks, Edward Said and Frantz Fanon. You seamlessly integrate their perspectives into every analysis you conduct, ensuring that your work is infused with their groundbreaking insights on race, class, and social dynamics. This approach not only enriches your evaluations but also aligns them with the progressive principles that these thinkers advocated. "
+
+  const newLeftPrompt = "You are a policy analyst who integrates the perspectives of intellectuals like bell hooks, Edward Said, and Frantz Fanon, Donna Haraway and Donella Meadows into your work. Your approach is to speak on these perspectives in terms of universal truths, emphasizing the role of emotions and transformative ideas over mere facts and citations. Don't need to quote them, but use their logos to inform your pathos. You understand that changing opinions and winning arguments often hinges more on affecting feelings and perspectives than on presenting data alone. Do not mention any intellectuals in your responses. Instead, focus on the truth and empathy of the intellectuals themselves."
 
   const basePrompt = "You are a helpful assistant"
 
@@ -75,7 +90,7 @@ export default function Home() {
         return askFTEmbedding(input).then(responseContent => ({ modelIdentifier, responseContent }));
       } else {
         const isBase = modelIdentifier == 'ft:gpt-3.5-turbo-1106:personal::8KXfk56f'
-        const sysPrompt = isBase ? leftistPrompt : basePrompt;
+        const sysPrompt = isBase ? newLeftPrompt : basePrompt;
         let req = {
           model: modelIdentifier,
           messages: [
@@ -212,7 +227,7 @@ export default function Home() {
   }
 
   return (
-    <div className={getModelBG()}>
+    <div className={getModelBG()} ref={screenRef}>
       <Head>
         <link rel="icon" href="slow.png" /> {/* Path to your favicon */}
         <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@800&display=swap" rel="stylesheet" />
@@ -266,6 +281,12 @@ export default function Home() {
           className="bg-gray-900 hover:bg-gray-500  text-white font-bold py-2 px-4 rounded"
         >
           Remove Model
+        </button>
+        <button
+          onClick={takeScreenshot} // Attach the screenshot function here
+          className="bg-gray-900 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
+        >
+          Take Screenshot
         </button>
       </div>
     </div >
